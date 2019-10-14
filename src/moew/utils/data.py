@@ -1,7 +1,8 @@
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from torch import nn
-from .model import FocalLoss
+from .loss import FocalLoss
+from torch.utils.data import Dataset
 
 
 class TargetPreProcess(BaseEstimator, TransformerMixin):
@@ -21,7 +22,7 @@ class TargetPreProcess(BaseEstimator, TransformerMixin):
 
         return self
 
-    def transform(self, y: pd.Series, norm: bool = True):
+    def transform(self, y: pd.Series, norm: bool=True):
         if self.n_classes == 1:
             y = (y - self.avg) / self.std if norm else y
         else:
@@ -58,13 +59,30 @@ class FeaturePreProcess(BaseEstimator, TransformerMixin):
 
         return self
 
-    def transform(self, X: pd.DataFrame, norm: bool = True):
+    def transform(self, X: pd.DataFrame, norm: bool=True, fillna: bool=False):
+        # TODO: better filling missing data strategy
         for col in self.num_cols:
             avg, std = self.norm[col]
+            X[col] = X[col].fillna(0) if fillna else X[col]
             X[col] = (X[col] - avg) / std if nrom else X[col]
         for col in self.cat_cols:
-            X[col] = X[col].map(self.label_encode[col]).fillna(0)
             avg, std = self.norm[col]
+            X[col] = X[col].map(self.label_encode[col])
+            X[col] = X[col].fillna(0) if fillna else X[col]
             X[col] = (X[col] - avg) / std if nrom else X[col]
 
         return X
+
+
+class AutoEncoderDataset(Dataset):
+    def __init__(self, X: pd.DataFrame, y: pd.Series):
+        self.X = X
+        self.y = y
+
+    def __getitem__(self, idx):
+        X = self.X.iloc[idx].values
+        y = self.y.iloc[idx]
+        return np.append(X, y)
+
+    def __len__(self):
+        return len(self.y)
