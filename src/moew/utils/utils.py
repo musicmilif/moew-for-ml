@@ -3,14 +3,6 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 
 
-def check_instance(model):
-    # TODO: check which model to use
-    if isinstance(model, BaseEstimator):
-        pass
-    elif isinstance(model, dict):
-        pass
-
-
 def sample_from_ball(cnt=1, dim=1, radius=2):
     points = np.random.normal(size=(cnt, dim))
     points /= np.expand_dims(np.linalg.norm(points, axis=1), axis=1)
@@ -21,7 +13,7 @@ def sample_from_ball(cnt=1, dim=1, radius=2):
 
 
 def get_importance_sampling(train_y, valid_y, pred_type):
-    if pred_type == 'reg':
+    if pred_type == "reg":
         n_bins = 100
         intervals = pd.cut(train_y, n_bins).cat.categories
         min_y, max_y = train_y.min(), train_y.max()
@@ -34,10 +26,10 @@ def get_importance_sampling(train_y, valid_y, pred_type):
     dist = (valid_dist / train_dist).fillna(0)
 
     def get_weight(y):
-        if pred_type == 'reg':
+        if pred_type == "reg":
             y = np.clip(y, min_y, max_y)
             y = intervals.get_loc(y)
-        if pred_type == 'cls':
+        elif pred_type == "cls":
             if y not in train_dist.index:
                 return 0
         return dist.loc[y]
@@ -53,9 +45,11 @@ def get_instance_weights(emb_x, alpha, y, c=1):
         y (pd.Series): target.
         c (float): a constant for weights.
     """
-    def softmax(x): return 1 / (1 + np.exp(-x))
-    importance = pd.Series(c * y.apply(get_importance_sampling))
 
+    def softmax(x):
+        return 1 / (1 + np.exp(-x))
+
+    importance = pd.Series(c * y.apply(get_importance_sampling))
     weights = pd.DataFrame(softmax(emb_x.dot(alpha.T)))
     weights = (weights * importance).sum(axis=1).values
 
