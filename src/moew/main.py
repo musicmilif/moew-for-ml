@@ -1,24 +1,29 @@
+import .models
+from .base import Alpha
+from .utils.model import TrainEmbedding
+
+
 class MOEW(object):
-    def __init__(self, model, pred_type=None):
-        self.model = model
-        self.pred_type = pred_type
+    def __init__(self, model_name, alpha_dim, **kwargs):
+        """Inplement Metrics-Optimize Example Weights (MOEW)
+        Args:
+            model_name (string): name of the base model. 
+            alpha_dim (int): the dimension for embedding.
+        """
+        self.model_name = model_name
+        self.alpha_dim = alpha_dim
 
     def fit(self, train_X, valid_X, train_y, valid_y):
-        self._check_type(train_y)
+        # Train auto encoder
+        self.auto_encoder = TrainEmbedding(
+            train_X.shape[1], self.alpha_dim, self.num_classes
+        )
+
+self, model_name, alpha_dim, n_iters=100, radius=2):
+
+
+        # Train Model
+        self.model = models.__dict__[self.model_name](**kwargs)
 
     def predict(self, test_X):
         pass
-
-    def _check_type(self, train_y):
-        if not self.pred_type:
-            if train_y.dtype in ['category', 'object']:
-                self.pred_type = 'cls'
-            else:
-                self.pred_type = 'reg'
-
-        if self.pred_type == 'cls':
-            self.num_classes = train_y.nunique()
-        elif self.pred_type == 'reg':
-            self.num_classes = 1
-        else:
-            raise ValueError(f'Invalid pred_type {self.pred_type}, should be `reg` or `cls`')
