@@ -5,6 +5,7 @@ from sklearn.gaussian_process.kernels import ConstantKernel, RBF
 from ..utils import sample_from_ball, get_instance_weights
 from .. import models
 
+
 class Alpha(object):
     def __init__(self, model_name, alpha_dim, n_iters=100, radius=2, **kwargs):
         self.model = models.__dict__[model_name](**kwargs)
@@ -41,10 +42,7 @@ class Alpha(object):
         weights = get_instance_weights(embedding, next_alpha, train_y)
         clr = self.model.fit(train_X, train_y, sample_weight=weights)
 
-
         # Append alpha and metrics
         alphas = np.concatenate([alphas, alpha_batch])
         parallel_validation_metrics = [[clr.best_score["valid_1"]["auc"]]]
         validation_metrics.extend(parallel_validation_metrics)
-
-

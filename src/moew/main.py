@@ -21,7 +21,6 @@ class Moew(object):
 
         # Train alpha
 
-
         # Train Model
         self.model = models.__dict__[self.model_name](**kwargs)
 
