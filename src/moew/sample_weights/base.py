@@ -9,7 +9,6 @@ from .. import models
 class Alpha(object):
     def __init__(self, model_name, alpha_dim, n_iters=100, radius=2, **kwargs):
         self.model = models.__dict__[model_name](**kwargs)
-        self.model_type = check_instance(model)
         self.alpha_dim = alpha_dim
         self.n_iters = n_iters
         self.radius = radius
