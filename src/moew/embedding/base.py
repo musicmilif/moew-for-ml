@@ -32,7 +32,7 @@ class Embedding(object):
                 Xy = Xy.to(self.device).float()
                 X_, y_ = self.model(Xy)
 
-                x_loss = self.x_criterion(X_, Xy[:, :-self.num_classes])
+                x_loss = self.x_criterion(X_, Xy[:, : -self.num_classes])
                 y_loss = self.y_criterion(y_, y)
                 loss = self.lambda_ * x_loss + (1 - self.lambda_) * y_loss
 
@@ -46,7 +46,7 @@ class Embedding(object):
         data_loader = DataLoader(
             dataset, batch_size=batch_size, shuffle=False, num_workers=1
         )
-        
+
         self.model.eval()
         with torch.no_grad():
             for Xy, y in data_loader:

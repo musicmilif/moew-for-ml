@@ -8,7 +8,7 @@ class FocalLoss(nn.Module):
         super(FocalLoss, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
-        self.reduction = 'mean' if reduction else 'none'
+        self.reduction = "mean" if reduction else "none"
 
     def forward(self, inputs, targets):
         ce_loss = F.cross_entropy(inputs, targets, reduction=self.reduction)

@@ -43,11 +43,14 @@ class BaseRegressor(object):
 
         return self
 
+    def predict(self, X):
+        return self.model.predict(X)
+
 
 class BaseClassifier(object):
     def __init__(self, model, train_size=0.9, **kwargs):
         self.train_size = train_size
-        self.model = model(probability=True, **kwargs)
+        self.model = model(**kwargs)
         self.best_score_ = defaultdict(OrderedDict)
 
     def fit(self, X, y, sample_weight=None, valid_X=None, valid_y=None, **kwargs):
@@ -69,19 +72,26 @@ class BaseClassifier(object):
 
         return self
 
+    def predict(self, X):
+        return self.model.predict(X)
+
+    def predict_proba(self, X):
+        return self.model.predict_proba(X)
+
 
 class SVR(BaseRegressor):
-    def __init__(self, model, train_size=0.9, **kwargs):
+    def __init__(self, train_size=0.9, **kwargs):
         super(SVR, self).__init__(svm.SVR, train_size=0.9, **kwargs)
 
 
 class SVC(BaseClassifier):
     def __init__(self, train_size=0.9, **kwargs):
+        kwargs["probability"] = True
         super(SVC, self).__init__(svm.SVC, train_size=0.9, **kwargs)
 
 
 class DecisionTreeRegressor(BaseRegressor):
-    def __init__(self, model, train_size=0.9, **kwargs):
+    def __init__(self, train_size=0.9, **kwargs):
         super(DecisionTreeRegressor, self).__init__(
             tree.DecisionTreeRegressor, train_size=0.9, **kwargs
         )
@@ -95,7 +105,7 @@ class DecisionTreeClassifier(BaseClassifier):
 
 
 class ExtraTreeRegressor(BaseRegressor):
-    def __init__(self, model, train_size=0.9, **kwargs):
+    def __init__(self, train_size=0.9, **kwargs):
         super(ExtraTreeRegressor, self).__init__(
             tree.ExtraTreeRegressor, train_size=0.9, **kwargs
         )
@@ -109,7 +119,7 @@ class ExtraTreeClassifier(BaseClassifier):
 
 
 class ExtraTreesRegressor(BaseRegressor):
-    def __init__(self, model, train_size=0.9, **kwargs):
+    def __init__(self, train_size=0.9, **kwargs):
         super(ExtraTreesRegressor, self).__init__(
             ensemble.ExtraTreesRegressor, train_size=0.9, **kwargs
         )
@@ -123,7 +133,7 @@ class ExtraTreesClassifier(BaseClassifier):
 
 
 class RandomForestRegressor(BaseRegressor):
-    def __init__(self, model, train_size=0.9, **kwargs):
+    def __init__(self, train_size=0.9, **kwargs):
         super(RandomForestRegressor, self).__init__(
             ensemble.RandomForestRegressor, train_size=0.9, **kwargs
         )
@@ -137,7 +147,7 @@ class RandomForestClassifier(BaseClassifier):
 
 
 class AdaBoostRegressor(BaseRegressor):
-    def __init__(self, model, train_size=0.9, **kwargs):
+    def __init__(self, train_size=0.9, **kwargs):
         super(AdaBoostRegressor, self).__init__(
             ensemble.AdaBoostRegressor, train_size=0.9, **kwargs
         )
@@ -151,7 +161,7 @@ class AdaBoostClassifier(BaseClassifier):
 
 
 class GradientBoostingRegressor(BaseRegressor):
-    def __init__(self, model, train_size=0.9, **kwargs):
+    def __init__(self, train_size=0.9, **kwargs):
         super(GradientBoostingRegressor, self).__init__(
             ensemble.GradientBoostingRegressor, train_size=0.9, **kwargs
         )
@@ -165,7 +175,7 @@ class GradientBoostingClassifier(BaseClassifier):
 
 
 class LinearRegression(BaseRegressor):
-    def __init__(self, model, train_size=0.9, **kwargs):
+    def __init__(self, train_size=0.9, **kwargs):
         super(LinearRegression, self).__init__(
             linear_model.LinearRegression, train_size=0.9, **kwargs
         )

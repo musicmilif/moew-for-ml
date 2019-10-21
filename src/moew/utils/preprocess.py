@@ -1,26 +1,23 @@
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
+from pandas.api.types import is_numeric_dtype
 
 
 class TargetPreProcess(BaseEstimator, TransformerMixin):
-    def __init__(self, num_classes: int):
-        self.n_classes = num_classes
-
-    def fit(self, y: pd.Series):
-        if self.n_classes == 1:
-            self.y_loss = nn.MSELoss()
+    def fit(self, y):
+        self.is_numeric_dtype = is_numeric_dtype(y)
+        if self.is_numeric_dtype:
             self.avg = y.mean()
             self.std = y.std()
             y = (y - self.avg) / self.std
         else:
-            self.y_loss = FocalLoss()
             y = y.astype("category")
             self.mapping = {v: k for k, v in enumerate(y.cat.categories)}
 
         return self
 
-    def transform(self, y: pd.Series, norm: bool = True):
-        if self.n_classes == 1:
+    def transform(self, y, norm=True):
+        if self.is_numeric_dtype:
             y = (y - self.avg) / self.std if norm else y
         else:
             y = y.map(self.mapping)
@@ -30,11 +27,10 @@ class TargetPreProcess(BaseEstimator, TransformerMixin):
 
 class FeaturePreProcess(BaseEstimator, TransformerMixin):
     def __init__(self):
-        self.loss = nn.MSELoss()
         self.norm = dict()
         self.label_encode = dict()
 
-    def fit(self, X: pd.DataFrame):
+    def fit(self, X):
         # TODO: datetime features and proper dealing with categorical features
         self.col_order = X.columns
         self.num_cols = X.select_dtypes(include=["number"]).columns
@@ -56,16 +52,16 @@ class FeaturePreProcess(BaseEstimator, TransformerMixin):
 
         return self
 
-    def transform(self, X: pd.DataFrame, norm: bool = True, fillna: bool = False):
+    def transform(self, X, norm=True, fillna=False):
         # TODO: better filling missing data strategy
         for col in self.num_cols:
             avg, std = self.norm[col]
             X[col] = X[col].fillna(0) if fillna else X[col]
-            X[col] = (X[col] - avg) / std if nrom else X[col]
+            X[col] = (X[col] - avg) / std if norm else X[col]
         for col in self.cat_cols:
             avg, std = self.norm[col]
             X[col] = X[col].map(self.label_encode[col])
             X[col] = X[col].fillna(0) if fillna else X[col]
-            X[col] = (X[col] - avg) / std if nrom else X[col]
+            X[col] = (X[col] - avg) / std if norm else X[col]
 
         return X
