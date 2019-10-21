@@ -1,24 +1,30 @@
-class MOEW(object):
-    def __init__(self, model, pred_type=None):
-        self.model = model
-        self.pred_type = pred_type
+from torch import nn
 
-    def fit(self, train_X, valid_X, train_y, valid_y):
-        self._check_type(train_y)
+from . import models
+from .sample_weights.base import Alpha
+from .embedding.base import Embedding
+from .embedding.loss import FocalLoss
+
+
+class Moew(object):
+    def __init__(self, model_name, alpha_dim):
+        """Inplement Metrics-Optimize Example Weights (MOEW)
+        Args:
+            model_name (string): name of the base model. 
+            alpha_dim (int): the dimension for embedding.
+        """
+        self.model_name = model_name
+        self.alpha_dim = alpha_dim
+
+    def fit(self, train_X, train_y, valid_X=None, valid_y=None):
+        # Train auto encoder
+        self.auto_encoder = Embedding(nn.MSELoss(), FocalLoss(), self.alpha_dim)
+        auto_encoder.fit(train_X, train_y)
+
+        # Train alpha
+
+        # Train Model
+        # self.model = models.__dict__[self.model_name](**kwargs)
 
     def predict(self, test_X):
         pass
-
-    def _check_type(self, train_y):
-        if not self.pred_type:
-            if train_y.dtype in ['category', 'object']:
-                self.pred_type = 'cls'
-            else:
-                self.pred_type = 'reg'
-
-        if self.pred_type == 'cls':
-            self.num_classes = train_y.nunique()
-        elif self.pred_type == 'reg':
-            self.num_classes = 1
-        else:
-            raise ValueError(f'Invalid pred_type {self.pred_type}, should be `reg` or `cls`')
