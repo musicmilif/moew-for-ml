@@ -1,9 +1,9 @@
-import .models
+from . import models
 from .base import Alpha
-from .utils.model import TrainEmbedding
+from .embedding.base import Embedding
 
 
-class MOEW(object):
+class Moew(object):
     def __init__(self, model_name, alpha_dim, **kwargs):
         """Inplement Metrics-Optimize Example Weights (MOEW)
         Args:
@@ -15,11 +15,11 @@ class MOEW(object):
 
     def fit(self, train_X, valid_X, train_y, valid_y):
         # Train auto encoder
-        self.auto_encoder = TrainEmbedding(
+        self.auto_encoder = Embedding(
             train_X.shape[1], self.alpha_dim, self.num_classes
         )
 
-self, model_name, alpha_dim, n_iters=100, radius=2):
+        # Train alpha
 
 
         # Train Model

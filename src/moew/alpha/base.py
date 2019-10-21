@@ -1,13 +1,13 @@
 import numpy as np
-
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ConstantKernel, RBF
-from .utils.utils import sample_from_ball, get_instance_weights
-from . import models
+
+from ..utils import sample_from_ball, get_instance_weights
+from .. import models
 
 class Alpha(object):
-    def __init__(self, model_name, alpha_dim, n_iters=100, radius=2):
-        self.model = model.__dict__[model_name]
+    def __init__(self, model_name, alpha_dim, n_iters=100, radius=2, **kwargs):
+        self.model = models.__dict__[model_name](**kwargs)
         self.model_type = check_instance(model)
         self.alpha_dim = alpha_dim
         self.n_iters = n_iters
@@ -40,7 +40,7 @@ class Alpha(object):
         # Assign instance weights to each data then train model
         weights = get_instance_weights(embedding, next_alpha, train_y)
         clr = self.model.fit(train_X, train_y, sample_weight=weights)
-        
+
 
         # Append alpha and metrics
         alphas = np.concatenate([alphas, alpha_batch])
